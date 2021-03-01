@@ -1,0 +1,15 @@
+Register-PSRepository -Name "SitecoreGallery" -SourceLocation "https://sitecore.myget.org/F/sc-powershell/api/v2"
+Install-Module SitecoreDockerTools
+
+
+# This imports the SitecoreDockerTools module into the session, then sets the TELERIK_ENCRYPTION_KEY variable
+Import-Module SitecoreDockerTools
+Set-DockerComposeEnvFileVariable "TELERIK_ENCRYPTION_KEY" -Value (Get-SitecoreRandomString 128)
+
+# This script takes care of the SITECORE_IDSECRET, SITECORE_ID_CERTIFICATE, and SITECORE_ID_CERTIFICATE_PASSWORD variables
+Import-Module SitecoreDockerTools
+Set-DockerComposeEnvFileVariable "SITECORE_IDSECRET" -Value (Get-SitecoreRandomString 64 -DisallowSpecial)
+$idCertPassword = Get-SitecoreRandomString 12 -DisallowSpecial
+Set-DockerComposeEnvFileVariable "SITECORE_ID_CERTIFICATE" -Value (Get-SitecoreCertificateAsBase64String -DnsName "localhost" -Password (ConvertTo-SecureString -String $idCertPassword -Force -AsPlainText))
+Set-DockerComposeEnvFileVariable "SITECORE_ID_CERTIFICATE_PASSWORD" -Value $idCertPassword
+
