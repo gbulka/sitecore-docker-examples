@@ -16,3 +16,43 @@ Set-DockerComposeEnvFileVariable "SITECORE_ID_CERTIFICATE_PASSWORD" -Value $idCe
 # Embedding license information into .env file:
 Import-Module SitecoreDockerTools
 Set-DockerComposeEnvFileVariable "SITECORE_LICENSE" -Value (ConvertTo-CompressedBase64String -Path "C:\License\license.xml")
+
+# Installing certificates (having previously installed mkcert):
+mkcert -cert-file traefik\certs\xp0cm.localhost.crt -key-file traefik\certs\xp0cm.localhost.key "xp0cm.localhost"
+mkcert -cert-file traefik\certs\xp0id.localhost.crt -key-file traefik\certs\xp0id.localhost.key "xp0id.localhost"
+
+# Launch everything in Docker
+docker-compose up -d
+
+
+# Result:
+## Step 2: Browse to https://xp0cm.localhost and you should see the Sitecore default website.
+## 
+## Step 3: Now, browse to https://xp0cm.localhost/sitecore and verify you can log in to Sitecore. Use "admin" for the username and the value you specified for SITECORE_ADMIN_PASSWORD in the .env file ("Password12345" by default in init.ps1) for the password.
+## 
+## You can also access additional containers:
+## 
+## Sitecore Content Management (cm) = https://xp0cm.localhost
+## Sitecore xConnect Server (xconnect) = http://localhost:8081
+## Sitecore Identity Server (id) = https://xp0id.localhost
+## Apache Solr (solr) = http://localhost:8984 
+## Microsoft SQL Server (mssql) = localhost,14330 
+
+
+# Additional Docker commands:
+## Create and Start	This will create and run containers for all services defined in your Compose configuration.	docker-compose up -d
+## Stop	This will stop containers, but will not remove them.	docker-compose stop
+## Start	This will start existing containers which have previously been stopped.
+## docker-compose start
+## Restart	This will restart all stopped and running containers.
+## docker-compose restart
+## Stop and Remove	This will gracefully stop all containers, and once all are stopped, remove them. Any networks created by up are also removed.
+## docker-compose down
+## List	This will give you a list of all containers.	docker-compose ps
+## or
+## docker-compose ps --services
+## 
+## Build Images	This will build and create images for all services that define a build.
+## docker-compose build
+## Display Logs	This will display the logs from all containers, which for Sitecore, will be a lot. You'll definitely want to use the --tail option to limit.
+docker-compose logs --tail 20
